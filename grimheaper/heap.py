@@ -6,7 +6,10 @@ from grimheaper.ext import heap
 
 class BinaryHeap(object):
     def __init__(self):
-        heap.create_heap()
+        self._heap = heap.create_heap()
 
     def put(self, item):
-        heap.put(item)
+        return heap.put(self._heap, item)
+
+    def size(self):
+        return heap.size(self._heap)

@@ -14,12 +14,21 @@ class TestHeap(unittest.TestCase):
     def test_is_heap(self):
         self.assertIsInstance(self.heap, BinaryHeap)
 
-    #def test_put(self):
-        #for i in range(5):
-            #self.heap.put(i + 1)
+    def test_put(self):
+        item = self.heap.put(5)
+        self.assertEqual(item, 1)
+        item = self.heap.put(4)
+        self.assertEqual(item, 2)
+        item = self.heap.put(3)
+        self.assertEqual(item, 3)
 
-        #self.assertEqual(self.heap.pop(), 5)
-        #self.assertEqual(self.heap.pop(), 4)
-        #self.assertEqual(self.heap.pop(), 3)
-        #self.assertEqual(self.heap.pop(), 2)
-        #self.assertEqual(self.heap.pop(), 1)
+    #def test_put_other(self):
+        #item = self.heap.put(2)
+        #item = self.heap.put(3)
+        #self.assertEqual(1, item)
+
+        #item = self.heap.put(3)
+        #self.assertEqual(item, 1)
+
+        #item = self.heap.put(1)
+        #self.assertEqual(item, 3)
