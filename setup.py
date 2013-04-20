@@ -14,7 +14,11 @@ kwargs = {
     "install_requires": [
     ],
     "extras_require": {
-        'tests': ['nose'],
+        'tests': [
+            'nose',
+            'yanc',
+            'coverage'
+        ],
     }
 }
 
@@ -41,5 +45,6 @@ distutils.core.setup(
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
+    ext_modules=[distutils.core.Extension('grimheaper.ext.heap', ['grimheaper/ext/heap.c'])],
     **kwargs
 )
