@@ -45,6 +45,6 @@ distutils.core.setup(
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
-    ext_modules=[distutils.core.Extension('grimheaper.ext.heap', ['grimheaper/ext/heap.c'])],
+    ext_modules=[distutils.core.Extension('grimheaper.heap', ['grimheaper/ext/heap.c'])],
     **kwargs
 )
