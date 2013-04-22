@@ -14,36 +14,36 @@ def main():
     if args:
         passes = int(args[0])
 
-    #print
-    #print "Using GrimHeaper..."
-    #print
+    print
+    print "Using GrimHeaper..."
+    print
 
-    #heap = BinaryHeap()
+    heap = BinaryHeap()
 
-    #print
-    #print "Creating heap with %d items..." % passes
-    #print
+    print
+    print "Creating heap with %d items..." % passes
+    print
 
-    #started = time.time()
-    #for i in range(passes):
-        #heap.put(i)
+    started = time.time()
+    for i in range(passes):
+        heap.put(i)
 
-    #fill_time = time.time() - started
-    #print
-    #print "Heap filled with %d items after %.2fms" % (passes, fill_time)
+    fill_time = time.time() - started
+    print
+    print "Heap filled with %d items after %.2fms" % (passes, fill_time)
 
-    #started = time.time()
-    #for i in range(passes):
-        #heap.pop()
+    started = time.time()
+    for i in range(passes):
+        heap.pop()
 
-    #empty_time = time.time() - started
-    #print "Heap emptied with %d items after %.2fms" % (passes, empty_time)
-    #print
-    #print "Total time: %.2f" % (fill_time + empty_time)
+    empty_time = time.time() - started
+    print "Heap emptied with %d items after %.2fms" % (passes, empty_time)
+    print
+    print "Total time: %.2f" % (fill_time + empty_time)
 
-    #print
-    #print "Using Python's PriorityQueue..."
-    #print
+    print
+    print "Using Python's PriorityQueue..."
+    print
 
     queue = PriorityQueue()
 
