@@ -45,28 +45,28 @@ def main():
     print "Using Python's PriorityQueue..."
     print
 
-    queue = PriorityQueue()
+    #queue = PriorityQueue()
 
-    print
-    print "Creating queue with %d items..." % passes
-    print
+    #print
+    #print "Creating queue with %d items..." % passes
+    #print
 
-    started = time.time()
-    for i in range(passes):
-        queue.put(i)
+    #started = time.time()
+    #for i in range(passes):
+        #queue.put(i)
 
-    fill_time = time.time() - started
-    print
-    print "Queue filled with %d items after %.2fms" % (passes, fill_time)
+    #fill_time = time.time() - started
+    #print
+    #print "Queue filled with %d items after %.2fms" % (passes, fill_time)
 
-    started = time.time()
-    for i in range(passes):
-        queue.get()
+    #started = time.time()
+    #for i in range(passes):
+        #queue.get()
 
-    empty_time = time.time() - started
-    print "Queue emptied with %d items after %.2fms" % (passes, empty_time)
-    print
-    print "Total time: %.2f" % (fill_time + empty_time)
+    #empty_time = time.time() - started
+    #print "Queue emptied with %d items after %.2fms" % (passes, empty_time)
+    #print
+    #print "Total time: %.2f" % (fill_time + empty_time)
 
 
 if __name__ == '__main__':

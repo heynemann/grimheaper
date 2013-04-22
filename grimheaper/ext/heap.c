@@ -47,7 +47,6 @@ int greater(PyObject *item, PyObject *other) {
     return PyObject_Compare(item, other) > 0;
 }
 
-
 int swim(BinaryHeap *self) {
     int k = len(self) - 1;
 
@@ -166,19 +165,29 @@ BinaryHeap_put(BinaryHeap* self, PyObject *item)
 static PyObject *
 BinaryHeap_pop(BinaryHeap* self)
 {
-    int item_index = len(self) - 1;
-    /*printf("Removing item %d", item_index);*/
+    PyObject *lastelt, *returnitem;
+    Py_ssize_t n;
 
-    PyObject *item = get(self, 1);
+    /* # raises appropriate IndexError if heap is empty */
+    n = PyList_GET_SIZE(self->items);
+    if (n == 0) {
+        PyErr_SetString(PyExc_IndexError, "index out of range");
+        return NULL;
+    }
 
-    exchange(self, 1, item_index);
+    lastelt = PyList_GET_ITEM(self->items, n-1) ;
+    Py_INCREF(lastelt);
+    PyList_SetSlice(self->items, n-1, n, NULL);
+    n--;
 
-    del(self, item_index);
+    if (!n)
+        return lastelt;
 
+    returnitem = PyList_GET_ITEM(self->items, 1);
+    PyList_SET_ITEM(self->items, 1, lastelt);
     sink(self, 1);
 
-    Py_INCREF(item);
-    return item;
+    return returnitem;
 }
 
 static int BinaryHeap_len(BinaryHeap* self)
