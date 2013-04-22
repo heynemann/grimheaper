@@ -10,7 +10,7 @@ from Queue import PriorityQueue
 
 def main():
     args = sys.argv[1:]
-    passes = 100000
+    passes = 1000000
     if args:
         passes = int(args[0])
 
