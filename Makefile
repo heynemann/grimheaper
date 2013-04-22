@@ -6,3 +6,6 @@ compile_ext:
 
 test: compile_ext
 	@nosetests -s -v --with-yanc --with-coverage --cover-package=grimheaper tests/
+
+performance perf: compile_ext
+	@python test_performance.py

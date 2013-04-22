@@ -29,9 +29,10 @@ int append(BinaryHeap *self, PyObject *item) {
 }
 
 void exchange(BinaryHeap *self, int pos, int pos2) {
-    PyObject *aux = get(self, pos);
-    set(self, pos, get(self, pos2));
-    set(self, pos2, aux);
+    PyObject *item = get(self, pos);
+    PyObject *item2 = get(self, pos2);
+    set(self, pos, item2);
+    set(self, pos2, item);
 }
 
 int greater(PyObject *item, PyObject *other) {
@@ -40,15 +41,17 @@ int greater(PyObject *item, PyObject *other) {
 
 
 int swim(BinaryHeap *self) {
-    int k = self -> last;
+    int k = (int)PyList_Size(self -> items) - 1;
 
     while (k > 1) {
         PyObject *item = get(self, k);
         PyObject *parent = get(self, k / 2);
+
         if (greater(item, parent)) {
+            printf("%d and %d (%ld and %ld) LEN: %d\n", k, k / 2, PyInt_AsLong(item), PyInt_AsLong(parent), self -> last);
             exchange(self, k, k / 2);
         } else {
-            return k;
+            break;
         }
 
         k = k / 2;
@@ -150,8 +153,8 @@ static PyMemberDef BinaryHeap_members[] = {
 static PyObject *
 BinaryHeap_put(BinaryHeap* self, PyObject *item)
 {
-    append(self, item);
     self->last++;
+    append(self, item);
     int result = swim(self);
     return Py_BuildValue("i", result);
 }
@@ -170,7 +173,6 @@ BinaryHeap_pop(BinaryHeap* self)
 
     sink(self, 1);
 
-    Py_INCREF(item);
     return item;
 }
 
