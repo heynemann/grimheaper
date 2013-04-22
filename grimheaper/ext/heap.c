@@ -4,11 +4,14 @@
 typedef struct {
     PyObject_HEAD
     PyObject *items;
-    int last;
 } BinaryHeap;
 
 PyObject *get(BinaryHeap *self, int pos) {
     return PyList_GetItem(self->items, pos);
+}
+
+int len(BinaryHeap *self) {
+    return (int)PyList_Size(self->items);
 }
 
 int set(BinaryHeap *self, int pos, PyObject *item) {
@@ -20,6 +23,7 @@ int set(BinaryHeap *self, int pos, PyObject *item) {
 }
 
 int del(BinaryHeap *self, int pos) {
+    Py_DECREF(get(self, pos));
     return PyList_SetSlice(self->items, pos, pos + 1, NULL);
 }
 
@@ -31,7 +35,11 @@ int append(BinaryHeap *self, PyObject *item) {
 void exchange(BinaryHeap *self, int pos, int pos2) {
     PyObject *item = get(self, pos);
     PyObject *item2 = get(self, pos2);
+
+    Py_INCREF(item);
     set(self, pos, item2);
+
+    Py_INCREF(item2);
     set(self, pos2, item);
 }
 
@@ -41,14 +49,14 @@ int greater(PyObject *item, PyObject *other) {
 
 
 int swim(BinaryHeap *self) {
-    int k = (int)PyList_Size(self -> items) - 1;
+    int k = len(self) - 1;
 
     while (k > 1) {
         PyObject *item = get(self, k);
         PyObject *parent = get(self, k / 2);
 
         if (greater(item, parent)) {
-            printf("%d and %d (%ld and %ld) LEN: %d\n", k, k / 2, PyInt_AsLong(item), PyInt_AsLong(parent), self -> last);
+            /*printf("%d and %d (%ld and %ld) LEN: %d\n", k, k / 2, PyInt_AsLong(item), PyInt_AsLong(parent), self -> last);*/
             exchange(self, k, k / 2);
         } else {
             break;
@@ -62,16 +70,17 @@ int swim(BinaryHeap *self) {
 
 int sink(BinaryHeap *self, int pos) {
     int k = pos;
+    int last = len(self) - 1;
     /*printf("LAST: %d\n", self->last);*/
 
-    while (k * 2 < self -> last) {
+    while (k * 2 < last) {
         /*printf("Trying to sink for item %d\n\n", k);*/
         PyObject *item = get(self, k);
         int childIndex = k * 2;
         /*printf("childIndex: %d\n\n", childIndex);*/
         PyObject *child = get(self, k * 2);
 
-        if (k * 2 + 1 < self -> last) {
+        if (k * 2 + 1 < last) {
             PyObject *child2 = get(self, k * 2 + 1);
 
             if (greater(child2, child)) {
@@ -126,8 +135,6 @@ static PyObject *BinaryHeap_new(PyTypeObject *type, PyObject *args, PyObject *kw
             Py_DECREF(self);
             return NULL;
         }
-
-        self->last = 0;
     }
 
     return (PyObject *)self;
@@ -145,15 +152,12 @@ static int BinaryHeap_init(BinaryHeap *self, PyObject *args, PyObject *kwds)
 static PyMemberDef BinaryHeap_members[] = {
     {"items", T_OBJECT_EX, offsetof(BinaryHeap, items), 0,
      "items in the heap"},
-    {"last", T_INT, offsetof(BinaryHeap, last), 0,
-     "index of the last item in the heap"},
     {NULL}  /* Sentinel */
 };
 
 static PyObject *
 BinaryHeap_put(BinaryHeap* self, PyObject *item)
 {
-    self->last++;
     append(self, item);
     int result = swim(self);
     return Py_BuildValue("i", result);
@@ -162,8 +166,8 @@ BinaryHeap_put(BinaryHeap* self, PyObject *item)
 static PyObject *
 BinaryHeap_pop(BinaryHeap* self)
 {
-    int item_index = self->last;
-    self->last--;
+    int item_index = len(self) - 1;
+    /*printf("Removing item %d", item_index);*/
 
     PyObject *item = get(self, 1);
 
@@ -173,12 +177,13 @@ BinaryHeap_pop(BinaryHeap* self)
 
     sink(self, 1);
 
+    Py_INCREF(item);
     return item;
 }
 
 static int BinaryHeap_len(BinaryHeap* self)
 {
-    return (int)PyList_Size(self->items) - 1;
+    return len(self) - 1;
 }
 
 static PyMethodDef BinaryHeap_methods[] = {
