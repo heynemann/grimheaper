@@ -16,15 +16,7 @@ int len(BinaryHeap *self) {
 
 int set(BinaryHeap *self, int pos, PyObject *item) {
     int result = PyList_SetItem(self->items, pos, item);
-    if (result == -1) {
-        printf("Assigning item to position %d FAILED!", pos);
-    }
     return result;
-}
-
-int del(BinaryHeap *self, int pos) {
-    Py_DECREF(get(self, pos));
-    return PyList_SetSlice(self->items, pos, pos + 1, NULL);
 }
 
 int append(BinaryHeap *self, PyObject *item) {
@@ -55,7 +47,6 @@ int swim(BinaryHeap *self) {
         PyObject *parent = get(self, k / 2);
 
         if (greater(item, parent)) {
-            /*printf("%d and %d (%ld and %ld) LEN: %d\n", k, k / 2, PyInt_AsLong(item), PyInt_AsLong(parent), self -> last);*/
             exchange(self, k, k / 2);
         } else {
             break;
@@ -70,13 +61,10 @@ int swim(BinaryHeap *self) {
 int sink(BinaryHeap *self, int pos) {
     int k = pos;
     int last = len(self) - 1;
-    /*printf("LAST: %d\n", self->last);*/
 
     while (k * 2 < last) {
-        /*printf("Trying to sink for item %d\n\n", k);*/
         PyObject *item = get(self, k);
         int childIndex = k * 2;
-        /*printf("childIndex: %d\n\n", childIndex);*/
         PyObject *child = get(self, k * 2);
 
         if (k * 2 + 1 < last) {
@@ -88,9 +76,7 @@ int sink(BinaryHeap *self, int pos) {
             }
         }
 
-        /*printf("comparing items at %d and %d (Parent: %li Child: %li)\n", k, childIndex, PyInt_AsLong(item), PyInt_AsLong(child));*/
         if (greater(child, item)) {
-            /*printf("Exchanging items at %d and %d (pos: %li pos2: %li)\n", k, childIndex, PyInt_AsLong(get(self, k)), PyInt_AsLong(get(self, childIndex)));*/
             exchange(self, k, childIndex);
         } else {
             break;
