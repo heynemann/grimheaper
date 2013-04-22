@@ -12,12 +12,19 @@ PyObject *get(BinaryHeap *self, int pos) {
 }
 
 int set(BinaryHeap *self, int pos, PyObject *item) {
-    return PyList_SetItem(self->items, pos, item);
+    int result = PyList_SetItem(self->items, pos, item);
+    if (result == -1) {
+        printf("Assigning item to position %d FAILED!", pos);
+    }
+    return result;
+}
+
+int del(BinaryHeap *self, int pos) {
+    return PyList_SetSlice(self->items, pos, pos + 1, NULL);
 }
 
 int append(BinaryHeap *self, PyObject *item) {
     int result = PyList_Append(self->items, item);
-    /*printf("\n\nAPPEND WORKED? %d\n\n", result);*/
     return result;
 }
 
@@ -27,8 +34,7 @@ void exchange(BinaryHeap *self, int pos, int pos2) {
     set(self, pos2, aux);
 }
 
-
-int compare(PyObject *item, PyObject *other) {
+int greater(PyObject *item, PyObject *other) {
     return PyObject_Compare(item, other) > 0;
 }
 
@@ -39,7 +45,7 @@ int swim(BinaryHeap *self) {
     while (k > 1) {
         PyObject *item = get(self, k);
         PyObject *parent = get(self, k / 2);
-        if (compare(item, parent)) {
+        if (greater(item, parent)) {
             exchange(self, k, k / 2);
         } else {
             return k;
@@ -51,7 +57,39 @@ int swim(BinaryHeap *self) {
     return k;
 }
 
+int sink(BinaryHeap *self, int pos) {
+    int k = pos;
+    /*printf("LAST: %d\n", self->last);*/
 
+    while (k * 2 < self -> last) {
+        /*printf("Trying to sink for item %d\n\n", k);*/
+        PyObject *item = get(self, k);
+        int childIndex = k * 2;
+        /*printf("childIndex: %d\n\n", childIndex);*/
+        PyObject *child = get(self, k * 2);
+
+        if (k * 2 + 1 < self -> last) {
+            PyObject *child2 = get(self, k * 2 + 1);
+
+            if (greater(child2, child)) {
+                childIndex++;
+                child = child2;
+            }
+        }
+
+        /*printf("comparing items at %d and %d (Parent: %li Child: %li)\n", k, childIndex, PyInt_AsLong(item), PyInt_AsLong(child));*/
+        if (greater(child, item)) {
+            /*printf("Exchanging items at %d and %d (pos: %li pos2: %li)\n", k, childIndex, PyInt_AsLong(get(self, k)), PyInt_AsLong(get(self, childIndex)));*/
+            exchange(self, k, childIndex);
+        } else {
+            break;
+        }
+
+        k = childIndex;
+    }
+
+    return k;
+}
 
 static int BinaryHeap_traverse(BinaryHeap *self, visitproc visit, void *arg)
 {
@@ -118,11 +156,48 @@ BinaryHeap_put(BinaryHeap* self, PyObject *item)
     return Py_BuildValue("i", result);
 }
 
+static PyObject *
+BinaryHeap_pop(BinaryHeap* self)
+{
+    int item_index = self->last;
+    self->last--;
+
+    PyObject *item = get(self, 1);
+
+    exchange(self, 1, item_index);
+
+    del(self, item_index);
+
+    sink(self, 1);
+
+    Py_INCREF(item);
+    return item;
+}
+
+static int BinaryHeap_len(BinaryHeap* self)
+{
+    return (int)PyList_Size(self->items) - 1;
+}
+
 static PyMethodDef BinaryHeap_methods[] = {
     {"put", (PyCFunction)BinaryHeap_put, METH_O,
      "Puts a new item in the heap"
     },
+    {"pop", (PyCFunction)BinaryHeap_pop, METH_NOARGS,
+     "Gets the largest item in the heap"
+    },
     {NULL}  /* Sentinel */
+};
+
+static PySequenceMethods BinaryHeap_as_sequence[] = {
+    {(lenfunc)BinaryHeap_len},       /* inquiry sq_length; */
+    {0},                             /* binaryfunc sq_concat; */
+    {0},                             /* intargfunc sq_repeat; */
+    {0},                             /* intargfunc sq_item; */
+    {0},                             /* intintargfunc sq_slice; */
+    {0},                             /* intobjargproc sq_ass_item; */
+    {0},                             /* intintobjargproc sq_ass_slice; */
+    {NULL}                           /* Sentinel */
 };
 
 static PyTypeObject BinaryHeapType = {
@@ -138,7 +213,7 @@ static PyTypeObject BinaryHeapType = {
     0,                         /*tp_compare*/
     0,                         /*tp_repr*/
     0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
+    BinaryHeap_as_sequence,    /*tp_as_sequence*/
     0,                         /*tp_as_mapping*/
     0,                         /*tp_hash */
     0,                         /*tp_call*/
@@ -191,72 +266,3 @@ initheap(void)
     Py_INCREF(&BinaryHeapType);
     PyModule_AddObject(m, "BinaryHeap", (PyObject *)&BinaryHeapType);
 }
-
-/*typedef struct {*/
-    /*int first;*/
-    /*int last;*/
-    /*int *heap;*/
-/*} queue;*/
-
-
-/*static PyObject * create_heap(PyObject *self, PyObject *args)*/
-/*{*/
-    /*int *heap;*/
-    /*heap = malloc(sizeof(int) * 1000);*/
-    /**heap = 0;*/
-
-    /*queue q = {*/
-        /*.first = 1,*/
-        /*.last = 1,*/
-        /*.heap = heap*/
-    /*};*/
-
-    /*printf("\ncreating @%p\n", &q);*/
-
-    /*PyObject *result = PyCapsule_New(&q, NULL, NULL);*/
-
-    /*return result;*/
-/*}*/
-
-
-/*static PyObject * put(PyObject *self, PyObject *args)*/
-/*{*/
-    /*PyObject *capsule;*/
-    /*int item;*/
-
-    /*if (!PyArg_ParseTuple(args, "Oi", &capsule, &item)) {*/
-        /*return NULL;*/
-    /*}*/
-
-    /*queue *q = (queue*)PyCapsule_GetPointer(capsule, NULL);*/
-    /*printf("\nusing queue @%p\n", q);*/
-
-    /*[>q->heap[q->last] = item;<]*/
-    /*[>int pos = swim(q);<]*/
-    /*q->last++;*/
-
-    /*return Py_BuildValue("i", 1);*/
-/*}*/
-
-
-/*static PyMethodDef heap_funcs[] = {*/
-    /*{*/
-        /*"create_heap",*/
-        /*(PyCFunction)create_heap, */
-        /*METH_VARARGS,*/
-        /*"Creates a binary heap"*/
-    /*},*/
-    /*{*/
-        /*"put",*/
-        /*(PyCFunction)put, */
-        /*METH_VARARGS,*/
-        /*"Puts an item in the heap"*/
-    /*},*/
-    /*{NULL}*/
-/*};*/
-
-/*void initheap(void)*/
-/*{*/
-    /*Py_InitModule3("heap", heap_funcs,*/
-                   /*"Heap extension");*/
-/*}*/
