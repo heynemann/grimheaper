@@ -61,7 +61,7 @@ def main():
 
     started = time.time()
     for i in range(passes):
-        queue.get()
+        queue.get_nowait()
 
     empty_time = time.time() - started
     print "Queue emptied with %d items after %.2fms" % (passes, empty_time)
